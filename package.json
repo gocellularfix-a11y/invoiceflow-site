@@ -1,0 +1,17 @@
+{
+  "name": "invoiceflow-site",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Marketing, privacy policy, terms and support pages for the InvoiceFlow app.",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "build:draft": "node scripts/build.mjs --draft",
+    "serve": "node scripts/serve.mjs",
+    "preview": "node scripts/build.mjs --draft && node scripts/serve.mjs",
+    "test": "node --test \"test/*.test.mjs\""
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ title }}</title>
+  <meta name="description" content="{{ description }}">
+  <meta name="robots" content="{{ robots }}">
+  <meta name="theme-color" content="#4F46E5">
+  <link rel="canonical" href="{{ canonical }}">
+  <link rel="icon" href="/assets/favicon.png" sizes="64x64">
+  <link rel="icon" href="/assets/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="{{ siteName }}">
+  <meta property="og:title" content="{{ title }}">
+  <meta property="og:description" content="{{ description }}">
+  <meta property="og:url" content="{{ canonical }}">
+  <meta property="og:image" content="{{ siteUrl }}/assets/icon-512.png">
+  <meta name="twitter:card" content="summary">
+  <link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  {{{ draftBanner }}}
+  <header class="site-header">
+    <div class="wrap site-header__inner">
+      <a class="brand" href="/" aria-label="InvoiceFlow home">
+        <img src="/assets/icon.svg" width="36" height="36" alt="" class="brand__logo">
+        <span class="brand__name">InvoiceFlow</span>
+      </a>
+      <nav aria-label="Main">
+        <ul class="nav">
+          <li><a href="/#features">Features</a></li>
+          <li><a href="/privacy.html"{{{ curPrivacy }}}>Privacy</a></li>
+          <li><a href="/terms.html"{{{ curTerms }}}>Terms</a></li>
+          <li><a href="/support.html"{{{ curSupport }}}>Support</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+{{{ content }}}
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap site-footer__inner">
+      <div>
+        <div class="brand brand--small">
+          <img src="/assets/icon.svg" width="28" height="28" alt="" class="brand__logo">
+          <span class="brand__name">InvoiceFlow</span>
+        </div>
+        <p class="muted">&copy; {{ year }} {{ legalName }}. All rights reserved.</p>
+      </div>
+      <ul class="footer-links">
+        <li><a href="/privacy.html">Privacy Policy</a></li>
+        <li><a href="/terms.html">Terms and Conditions</a></li>
+        <li><a href="/support.html">Support</a></li>
+        <li><a href="mailto:{{ email }}">{{ email }}</a></li>
+      </ul>
+    </div>
+  </footer>
+</body>
+</html>
