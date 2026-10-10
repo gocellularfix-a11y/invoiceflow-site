@@ -36,7 +36,7 @@ Only a few things leave your device, and each one is described here.
 
 **Payment links.** If you add a Stripe Payment Link in Settings, the app accepts only links on Stripe's payment-link address (buy.stripe.com). It attaches your invoice number to that link as a reference, so you can match a payment in your Stripe Dashboard. Customer names and other personal details are not added to the link. InvoiceFlow does not process payments, never handles card details, and cannot see whether a customer paid: you record payments yourself.
 
-**Device backups.** Your phone may back up the app's data to your Google account if you have device backup turned on. This is a feature of your phone and your Google account, and it can include customer details and photos. InvoiceFlow asks Android to upload that backup only when it can be encrypted end to end with your screen lock, and not at all otherwise. We never receive it. You can review or turn off backups in your phone's settings (Settings, then Google services, then Backup).
+**Device backups and moving to a new phone.** InvoiceFlow turns off Android's automatic cloud backup for the app, so Android does not copy the app's data to your Google account. When you set up a new phone by copying directly from your old one, some Android phones may still carry the app's data across, including customer details and photos. That copy goes from one of your devices to the other, and we never receive it. To keep a copy of your own, use Export backup in Settings.
 
 **Google Play.** Google may share anonymous crash and usage statistics with us through Google Play if you have allowed your device to send them. These do not contain your invoices or customer data.
 
@@ -71,7 +71,7 @@ Because the data lives only on your device, you delete it there. We hold no copy
 Deleting data, clearing it or uninstalling does **not** delete:
 
 - backup files you exported and saved or shared (delete those yourself where you stored them);
-- copies kept by your phone's own backup in your Google account (manage them in your phone's backup settings or your Google Account);
+- a copy on another phone, if your data was carried across when you set that phone up (delete it in the app on that phone);
 - messages or files you shared with other people or apps.
 
 It also does not delete anything that Photon or WhatsApp received from you, which are handled under their own terms.

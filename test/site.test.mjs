@@ -168,6 +168,10 @@ test('the privacy policy describes what the app really does', () => {
   assert.match(html, /does <strong>not<\/strong> delete/);
   assert.match(html, /Deleting your data/);
   assert.doesNotMatch(html, /uninstalling[^.]*removes[^.]*backup/i);
+  // the app sets android:allowBackup="false": no cloud backup may be described
+  assert.match(html, /turns off Android(&#39;|&rsquo;|'|’)s automatic cloud backup/);
+  assert.doesNotMatch(html, /back up the app(&#39;|&rsquo;|'|’)s data to your Google account/i);
+  assert.doesNotMatch(html, /encrypted end to end with your screen lock/i);
 });
 
 test('the policy makes no claim it cannot support', () => {
@@ -194,7 +198,9 @@ test('support explains deletion and what it does not remove', () => {
   const html = readFileSync(join(out, 'support.html'), 'utf8');
   assert.match(html, /Clear all data/);
   assert.match(html, /does <strong>not<\/strong> delete backup files/);
-  assert.match(html, /Google services/);
+  // Android cloud backup is off in the app, so there is no phone backup setting to point to
+  assert.match(html, /does not use Android's automatic cloud backup/);
+  assert.doesNotMatch(html, /Google services/);
 });
 
 test('the landing page does not promote a credit-card surcharge or imply messages are sent for you', () => {
