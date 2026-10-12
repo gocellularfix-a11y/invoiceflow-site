@@ -26,6 +26,7 @@ Fill these in `site.config.json`. The production build refuses to run while any 
 |---|---|
 | `legalName` | Your registered business name |
 | `brandName` | Optional. A commercial brand shown as one footer line ("InvoiceFlow is a product of …"). It is not the legal publisher and is never used in the legal text; leave empty to show no line |
+| `revisions` | Optional list (newest first) shown as a "Revision history" under the Privacy Policy and Terms: `{"type":"published","date":"…"}` or `{"type":"dateFixed","date":"…","previous":"…"}`. Facts only; set `effectiveDate` and the entry dates to the real publication or deploy day, never earlier |
 | `address` | Your business address (shown in the legal pages) |
 | `email` | A support address you read |
 | `siteUrl` | The public address of the site, e.g. `https://invoiceflow.example` |

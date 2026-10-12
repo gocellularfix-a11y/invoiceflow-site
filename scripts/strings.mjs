@@ -26,6 +26,9 @@ export const STRINGS = {
     footSupport: 'Support',
     rights: 'All rights reserved.',
     brandBy: 'InvoiceFlow is a product of {brand}.',
+    revisionsHeading: 'Revision history',
+    revisionPublished: '{date}: First published at appinvoiceflow.com. Later the same day the publisher name was corrected to {legalName}.',
+    revisionDateFixed: '{date}: Corrected the effective date shown on this page. It had said {previous}, a date before the page was first published.',
     playLink: 'Get it on Google Play',
     playSoon: 'Coming soon to Google Play',
     titles: {
@@ -64,6 +67,9 @@ export const STRINGS = {
     footSupport: 'Soporte',
     rights: 'Todos los derechos reservados.',
     brandBy: 'InvoiceFlow es un producto de {brand}.',
+    revisionsHeading: 'Historial de revisiones',
+    revisionPublished: '{date}: Publicado por primera vez en appinvoiceflow.com. Más tarde ese mismo día se corrigió el nombre del publicador a {legalName}.',
+    revisionDateFixed: '{date}: Se corrigió la fecha de entrada en vigor que se mostraba en esta página. Decía {previous}, una fecha anterior a la primera publicación de la página.',
     playLink: 'Consíguela en Google Play',
     playSoon: 'Próximamente en Google Play',
     titles: {
@@ -103,6 +109,9 @@ export const STRINGS = {
     footSupport: 'Suporte',
     rights: 'Todos os direitos reservados.',
     brandBy: 'O InvoiceFlow é um produto de {brand}.',
+    revisionsHeading: 'Histórico de revisões',
+    revisionPublished: '{date}: Publicado pela primeira vez em appinvoiceflow.com. Mais tarde no mesmo dia, o nome do publicador foi corrigido para {legalName}.',
+    revisionDateFixed: '{date}: Foi corrigida a data de vigência exibida nesta página. Ela indicava {previous}, uma data anterior à primeira publicação da página.',
     playLink: 'Baixe no Google Play',
     playSoon: 'Em breve no Google Play',
     titles: {

@@ -367,3 +367,43 @@ test('the brand line is translated', () => {
   assert.match(readFileSync(join(out, 'es', 'index.html'), 'utf8'), /InvoiceFlow es un producto de ACME APPS\./);
   assert.match(readFileSync(join(out, 'pt', 'index.html'), 'utf8'), /O InvoiceFlow é um produto de ACME APPS\./);
 });
+
+// ── Effective date and public revision history ──────────────────────────────────────────────
+const REVISIONS = [
+  { type: 'dateFixed', date: 'October 12, 2026', previous: 'October 9, 2026' },
+  { type: 'published', date: 'October 12, 2026' },
+];
+
+test('the legal pages list their public revision history in every language', () => {
+  const { out } = buildInto({ ...FULL, effectiveDate: 'October 12, 2026', revisions: REVISIONS });
+  const expect = {
+    '': [/Effective date: October 12, 2026/, /Revision history/, /First published at appinvoiceflow\.com/, /It had said October 9, 2026/, /corrected to Acme Repairs LLC/],
+    'es/': [/Fecha de entrada en vigor: 12 de octubre de 2026/, /Historial de revisiones/, /Publicado por primera vez/, /Decía 9 de octubre de 2026/, /a Acme Repairs LLC/],
+    'pt/': [/Data de vigência: 12 de outubro de 2026/, /Histórico de revisões/, /Publicado pela primeira vez/, /Ela indicava 9 de outubro de 2026/, /para Acme Repairs LLC/],
+  };
+  for (const [dir, checks] of Object.entries(expect)) {
+    for (const page of ['privacy.html', 'terms.html']) {
+      const html = readFileSync(join(out, dir, page), 'utf8');
+      for (const re of checks) assert.match(html, re, `${dir}${page} is missing ${re}`);
+    }
+  }
+});
+
+test('without a revision list the legal pages show no history', () => {
+  const { out } = buildInto(FULL);
+  assert.doesNotMatch(readFileSync(join(out, 'privacy.html'), 'utf8'), /Revision history|revision-history/);
+});
+
+test('the real configuration is not backdated and claims no review', () => {
+  const cfg = JSON.parse(readFileSync(join(ROOT, 'site.config.json'), 'utf8'));
+  const day = (t) => Date.parse(`${t} 00:00:00 UTC`);
+  const published = cfg.revisions.filter((r) => r.type === 'published').map((r) => day(r.date));
+  assert.ok(published.length >= 1, 'the first public version is recorded');
+  assert.ok(day(cfg.effectiveDate) >= Math.min(...published), 'the effective date is not before the page was first published');
+  for (const r of cfg.revisions) assert.ok(day(r.date) >= Math.min(...published), `revision ${r.date} predates publication`);
+  const { out } = buildInto({ ...cfg, siteUrl: cfg.siteUrl || 'https://invoiceflow.example' });
+  for (const dir of ['', 'es/', 'pt/']) {
+    const html = readFileSync(join(out, dir, 'privacy.html'), 'utf8');
+    assert.doesNotMatch(html, /attorney|lawyer|abogado|advogado|reviewed by|revisad[ao] por/i, `${dir} claims a legal review`);
+  }
+});

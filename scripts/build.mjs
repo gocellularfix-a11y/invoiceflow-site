@@ -169,6 +169,25 @@ export const build = ({ draft = false } = {}) => {
     const legalWrap = readFileSync(join(pagesDir, '_legal.html'), 'utf8');
     const effective = localizedDate(config.effectiveDate, STRINGS[lang].locale);
 
+    // A short, factual list of what was changed on the legal pages and when (config.revisions, newest first).
+    const revisionsHtml = (() => {
+      const items = (Array.isArray(config.revisions) ? config.revisions : [])
+        .map((r) => {
+          const tpl = r.type === 'published' ? STRINGS[lang].revisionPublished : r.type === 'dateFixed' ? STRINGS[lang].revisionDateFixed : '';
+          if (!tpl) return '';
+          const text = tpl
+            .replace('{date}', localizedDate(r.date, STRINGS[lang].locale))
+            .replace('{previous}', localizedDate(r.previous ?? '', STRINGS[lang].locale))
+            .replace('{legalName}', config.legalName);
+          return `<li>${escapeHtml(text)}</li>`;
+        })
+        .filter(Boolean);
+      if (items.length === 0) return '';
+      return `
+<h2 id="revision-history">${escapeHtml(STRINGS[lang].revisionsHeading)}</h2>
+<ul>${items.join('')}</ul>`;
+    })();
+
     const emit = (spec) => {
       const html = page(config, draft, layout, lang, spec);
       const name = PAGE_FILES[spec.key];
@@ -185,7 +204,7 @@ export const build = ({ draft = false } = {}) => {
       emit({
         key: name,
         nav: name,
-        body: render(legalWrap, { heading, effective }, `_legal ${lang}`).replace('<!--BODY-->', markdownToHtml(md)),
+        body: render(legalWrap, { heading, effective }, `_legal ${lang}`).replace('<!--BODY-->', markdownToHtml(md) + revisionsHtml),
       });
     }
     emit({ key: 'notfound', body: fragment('404.html'), nav: '' });
