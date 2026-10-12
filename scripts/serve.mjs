@@ -18,7 +18,8 @@ const TYPES = {
 
 createServer((req, res) => {
   const pathname = decodeURIComponent(new URL(req.url, 'http://x').pathname);
-  let file = normalize(join(DIST, pathname === '/' ? 'index.html' : pathname));
+  let file = normalize(join(DIST, pathname));
+  if (existsSync(file) && statSync(file).isDirectory()) file = join(file, 'index.html');
   const inside = file.startsWith(DIST);
   const found = inside && existsSync(file) && statSync(file).isFile();
   if (!found) file = join(DIST, '404.html');

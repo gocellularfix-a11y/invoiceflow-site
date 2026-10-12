@@ -3,6 +3,21 @@
 Landing page, Privacy Policy, Terms and Conditions and Support page for the InvoiceFlow app.
 Plain HTML and CSS, built by a small Node script. No dependencies.
 
+## Languages
+
+The site is in English (the root), Spanish (`/es/`) and Brazilian Portuguese (`/pt/`). Every language has the same five pages.
+
+| What | English | Spanish | Portuguese |
+|---|---|---|---|
+| Landing, support, 404, legal wrapper | `src/pages/` | `src/pages/es/` | `src/pages/pt/` |
+| Privacy Policy and Terms | `src/content/` | `src/content/es/` | `src/content/pt/` |
+| Menu, footer, titles, descriptions | `scripts/strings.mjs` | same file | same file |
+
+Keep the three versions in step: when you change the English policy or terms, change the other two. `npm test` checks that
+the translations have the same structure and disclosures, but it cannot judge the wording. **The Spanish and Portuguese legal
+text is a translation of the English text and has not been reviewed by a lawyer or a native-speaking legal translator.**
+The effective date in `site.config.json` is written in English and shown in each language automatically.
+
 ## Before publishing
 
 Fill these in `site.config.json`. The production build refuses to run while any is empty:

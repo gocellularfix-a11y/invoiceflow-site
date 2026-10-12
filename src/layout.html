@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="{{ htmlLang }}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -9,11 +9,13 @@
   <meta name="theme-color" content="#07080d">
   <script>document.documentElement.classList.add('js')</script>
   <link rel="canonical" href="{{ canonical }}">
+  {{{ alternates }}}
   <link rel="icon" href="/assets/favicon.png" sizes="64x64">
   <link rel="icon" href="/assets/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="{{ siteName }}">
+  <meta property="og:locale" content="{{ ogLocale }}">
   <meta property="og:title" content="{{ title }}">
   <meta property="og:description" content="{{ description }}">
   <meta property="og:url" content="{{ canonical }}">
@@ -22,23 +24,28 @@
   <link rel="stylesheet" href="/assets/style.css">
 </head>
 <body>
-  <a class="skip" href="#main">Skip to content</a>
+  <a class="skip" href="#main">{{ skip }}</a>
   {{{ draftBanner }}}
   <div class="progress" aria-hidden="true"></div>
   <header class="site-header">
     <div class="wrap site-header__inner">
-      <a class="brand" href="/" aria-label="InvoiceFlow home">
+      <a class="brand" href="{{ prefix }}/" aria-label="{{ homeAria }}">
         <img src="/assets/icon.svg" width="36" height="36" alt="" class="brand__logo">
         <span class="brand__name">InvoiceFlow</span>
       </a>
-      <nav aria-label="Main">
-        <ul class="nav">
-          <li><a href="/#features">Features</a></li>
-          <li><a href="/privacy.html"{{{ curPrivacy }}}>Privacy</a></li>
-          <li><a href="/terms.html"{{{ curTerms }}}>Terms</a></li>
-          <li><a href="/support.html"{{{ curSupport }}}>Support</a></li>
-        </ul>
-      </nav>
+      <div class="site-header__right">
+        <nav aria-label="{{ navAria }}">
+          <ul class="nav">
+            <li><a href="{{ prefix }}/#features">{{ navFeatures }}</a></li>
+            <li><a href="{{ prefix }}/privacy.html"{{{ curPrivacy }}}>{{ navPrivacy }}</a></li>
+            <li><a href="{{ prefix }}/terms.html"{{{ curTerms }}}>{{ navTerms }}</a></li>
+            <li><a href="{{ prefix }}/support.html"{{{ curSupport }}}>{{ navSupport }}</a></li>
+          </ul>
+        </nav>
+        <nav aria-label="{{ langAria }}">
+          <ul class="lang">{{{ langSwitcher }}}</ul>
+        </nav>
+      </div>
     </div>
   </header>
 
@@ -53,12 +60,12 @@
           <img src="/assets/icon.svg" width="28" height="28" alt="" class="brand__logo">
           <span class="brand__name">InvoiceFlow</span>
         </div>
-        <p class="muted">&copy; {{ year }} {{ legalName }}. All rights reserved.</p>
+        <p class="muted">&copy; {{ year }} {{ legalName }}. {{ rights }}</p>
       </div>
       <ul class="footer-links">
-        <li><a href="/privacy.html">Privacy Policy</a></li>
-        <li><a href="/terms.html">Terms and Conditions</a></li>
-        <li><a href="/support.html">Support</a></li>
+        <li><a href="{{ prefix }}/privacy.html">{{ footPrivacy }}</a></li>
+        <li><a href="{{ prefix }}/terms.html">{{ footTerms }}</a></li>
+        <li><a href="{{ prefix }}/support.html">{{ footSupport }}</a></li>
         <li><a href="mailto:{{ email }}">{{ email }}</a></li>
       </ul>
     </div>

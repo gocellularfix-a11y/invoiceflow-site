@@ -236,3 +236,98 @@ test("the real source files build into complete pages even if saved with CRLF", 
   assert.match(html, /Messages you send/);
   assert.match(html, /Ending, changes, governing law and contact/);
 });
+
+// ── Spanish and Portuguese ──────────────────────────────────────────────────────────────────
+const TRANSLATED = [
+  { dir: 'es', htmlLang: 'es' },
+  { dir: 'pt', htmlLang: 'pt-BR' },
+];
+
+test('Spanish and Portuguese have every page, with the right language and no placeholders', () => {
+  const { out, failed } = buildInto(FULL);
+  assert.equal(failed, false);
+  for (const { dir, htmlLang } of TRANSLATED) {
+    for (const page of PAGES) {
+      const file = join(out, dir, page);
+      assert.ok(existsSync(file), `${dir}/${page} missing`);
+      const html = readFileSync(file, 'utf8');
+      assert.match(html, new RegExp(`<html lang="${htmlLang}">`), `${dir}/${page} lang`);
+      assert.doesNotMatch(html, /\{\{/, `${dir}/${page} has an unresolved placeholder`);
+      assert.doesNotMatch(html, /\[(LEGAL NAME|SUPPORT EMAIL|BUSINESS ADDRESS)/);
+      assert.match(html, /<meta name="robots" content="index, follow">/);
+      assert.match(html, new RegExp(`rel="canonical" href="https://invoiceflow\.example/${dir}/`));
+    }
+  }
+});
+
+test('every page points at all of its language versions', () => {
+  const { out } = buildInto(FULL);
+  for (const lang of ['', 'es/', 'pt/']) {
+    const html = readFileSync(join(out, lang, 'privacy.html'), 'utf8');
+    assert.match(html, /hreflang="en" href="https:\/\/invoiceflow\.example\/privacy\.html"/);
+    assert.match(html, /hreflang="es" href="https:\/\/invoiceflow\.example\/es\/privacy\.html"/);
+    assert.match(html, /hreflang="pt-BR" href="https:\/\/invoiceflow\.example\/pt\/privacy\.html"/);
+    assert.match(html, /hreflang="x-default"/);
+  }
+  const sitemap = readFileSync(join(out, 'sitemap.xml'), 'utf8');
+  assert.match(sitemap, /https:\/\/invoiceflow\.example\/es\/privacy\.html/);
+  assert.match(sitemap, /https:\/\/invoiceflow\.example\/pt\/terms\.html/);
+  assert.doesNotMatch(sitemap, /404/);
+});
+
+test('every internal link in Spanish and Portuguese points at something that exists', () => {
+  const { out } = buildInto(FULL);
+  for (const { dir } of TRANSLATED) {
+    for (const page of PAGES) {
+      const html = readFileSync(join(out, dir, page), 'utf8');
+      for (const [, ref] of html.matchAll(/(?:href|src)="(\/[^"#]*)(?:#[^"]*)?"/g)) {
+        const target = ref.endsWith('/') ? `${ref.slice(1)}index.html` : ref.slice(1);
+        assert.ok(existsSync(join(out, target)), `${dir}/${page} links to missing ${ref}`);
+      }
+    }
+  }
+});
+
+test('the translations keep the structure of the English pages', () => {
+  const { out } = buildInto(FULL);
+  const count = (html, re) => (html.match(re) ?? []).length;
+  for (const page of ['index.html', 'privacy.html', 'terms.html', 'support.html']) {
+    const en = readFileSync(join(out, page), 'utf8');
+    for (const { dir } of TRANSLATED) {
+      const tr = readFileSync(join(out, dir, page), 'utf8');
+      for (const re of [/<h2[ >]/g, /<details/g, /<article/g, /<li>/g, /<a [^>]*href=/g]) {
+        // The language switcher and nav are the same in every page; compare the page bodies only.
+        const body = (h) => h.slice(h.indexOf('<main'), h.indexOf('</main>'));
+        assert.equal(count(body(tr), re), count(body(en), re), `${dir}/${page}: ${re} differs from English`);
+      }
+    }
+  }
+});
+
+test('the translated policy keeps every disclosure of the English one', () => {
+  const { out } = buildInto(FULL);
+  const must = {
+    es: [/photon\.komoot\.io/, /no está cifrado/, /desactivadas por defecto/i, /nunca envía mensajes por sí sola/i, /buy\.stripe\.com/, /no tiene analítica/i],
+    pt: [/photon\.komoot\.io/, /não é criptografado/, /desativadas por padrão/i, /nunca envia mensagens por conta própria/i, /buy\.stripe\.com/, /não tem análise de uso/i],
+  };
+  for (const [dir, checks] of Object.entries(must)) {
+    const html = readFileSync(join(out, dir, 'privacy.html'), 'utf8');
+    for (const re of checks) assert.match(html, re, `${dir} privacy is missing ${re}`);
+    assert.match(html, /Acme Repairs LLC, 1 Test St, Santa Barbara, CA 93101/);
+    assert.match(html, /help@example\.com/);
+  }
+});
+
+test('the effective date is written in the reader’s language', () => {
+  const { out } = buildInto(FULL);
+  assert.match(readFileSync(join(out, 'es', 'privacy.html'), 'utf8'), /9 de octubre de 2026/);
+  assert.match(readFileSync(join(out, 'pt', 'terms.html'), 'utf8'), /9 de outubro de 2026/);
+  assert.match(readFileSync(join(out, 'privacy.html'), 'utf8'), /October 9, 2026/);
+});
+
+test('the Play button and unknown pages are translated too', () => {
+  const { out } = buildInto(FULL);
+  assert.match(readFileSync(join(out, 'es', 'index.html'), 'utf8'), /Próximamente en Google Play/);
+  assert.match(readFileSync(join(out, 'pt', 'index.html'), 'utf8'), /Em breve no Google Play/);
+  assert.match(readFileSync(join(out, '_redirects'), 'utf8'), /\/es\/\*\s+\/es\/404\.html\s+404/);
+});

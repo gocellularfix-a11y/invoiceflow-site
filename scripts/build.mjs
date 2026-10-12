@@ -8,6 +8,7 @@
 import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { DEFAULT_LANG, LANGS, STRINGS, prefixOf } from './strings.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const SRC = join(ROOT, 'src');
@@ -81,13 +82,55 @@ export const loadConfig = (draft) => {
   return filled;
 };
 
-const page = (config, draft, layout, { file, title, description, body, nav }) => {
+const PAGE_FILES = { index: 'index.html', support: 'support.html', privacy: 'privacy.html', terms: 'terms.html', notfound: '404.html' };
+
+/** "October 9, 2026" written in the reader's language; the original text if it is not a date. */
+export const localizedDate = (text, locale) => {
+  const parsed = new Date(`${String(text).trim()} 00:00:00 UTC`);
+  if (Number.isNaN(parsed.getTime())) return text;
+  return new Intl.DateTimeFormat(locale, { dateStyle: 'long', timeZone: 'UTC' }).format(parsed);
+};
+
+const page = (config, draft, layout, lang, { key, body, nav }) => {
+  const s = STRINGS[lang];
+  const prefix = prefixOf(lang);
+  const file = PAGE_FILES[key];
+  const path = file === 'index.html' ? '' : file;
+
+  // Every language version of this page, for search engines and for the language switcher.
+  const alternates = LANGS.map((l) => {
+    const href = `${config.siteUrl}${prefixOf(l)}/${path}`;
+    return `<link rel="alternate" hreflang="${STRINGS[l].hreflang}" href="${escapeHtml(href)}">`;
+  });
+  alternates.push(`<link rel="alternate" hreflang="x-default" href="${escapeHtml(`${config.siteUrl}/${path}`)}">`);
+  const switcher = LANGS.map((l) => {
+    const current = l === lang ? ' aria-current="true"' : '';
+    return `<li><a href="${prefixOf(l)}/${path}" hreflang="${STRINGS[l].hreflang}" lang="${STRINGS[l].hreflang}"${current}>${STRINGS[l].short}</a></li>`;
+  });
+
   const vars = {
     ...config,
     year: String(new Date().getFullYear()),
-    title,
-    description,
-    canonical: `${config.siteUrl}/${file === 'index.html' ? '' : file}`,
+    title: s.titles[key],
+    description: s.descriptions[key],
+    htmlLang: s.htmlLang,
+    ogLocale: s.ogLocale,
+    prefix,
+    skip: s.skip,
+    homeAria: s.homeAria,
+    navAria: s.navAria,
+    langAria: s.langAria,
+    navFeatures: s.navFeatures,
+    navPrivacy: s.navPrivacy,
+    navTerms: s.navTerms,
+    navSupport: s.navSupport,
+    footPrivacy: s.footPrivacy,
+    footTerms: s.footTerms,
+    footSupport: s.footSupport,
+    rights: s.rights,
+    canonical: `${config.siteUrl}${prefix}/${path}`,
+    alternates: alternates.join('\n  '),
+    langSwitcher: switcher.join(''),
     draftBanner: draft
       ? '<div class="draft-banner" role="status">DRAFT preview. Contact details are placeholders. Do not publish.</div>'
       : '',
@@ -96,11 +139,11 @@ const page = (config, draft, layout, { file, title, description, body, nav }) =>
     curTerms: nav === 'terms' ? ' aria-current="page"' : '',
     robots: draft ? 'noindex, nofollow' : 'index, follow',
     playBlock: config.playStoreUrl
-      ? `<a class="btn btn--primary" href="${escapeHtml(config.playStoreUrl)}" rel="noopener">Get it on Google Play</a>`
-      : '<span class="btn btn--soon" aria-disabled="true">Coming soon to Google Play</span>',
+      ? `<a class="btn btn--primary" href="${escapeHtml(config.playStoreUrl)}" rel="noopener">${s.playLink}</a>`
+      : `<span class="btn btn--soon" aria-disabled="true">${s.playSoon}</span>`,
     content: '',
   };
-  vars.content = render(body, vars, `page ${file}`);
+  vars.content = render(body, vars, `page ${lang}/${file}`);
   return render(layout, vars, 'layout');
 };
 
@@ -111,70 +154,70 @@ export const build = ({ draft = false } = {}) => {
   cpSync(join(SRC, 'assets'), join(OUT, 'assets'), { recursive: true });
 
   const layout = readFileSync(join(SRC, 'layout.html'), 'utf8');
-  const legalWrap = readFileSync(join(SRC, 'pages', '_legal.html'), 'utf8');
-  const files = [];
+  const files = []; // site-relative paths such as "index.html" or "es/privacy.html"
 
-  const emit = (spec) => {
-    const html = page(config, draft, layout, spec);
-    writeFileSync(join(OUT, spec.file), html);
-    files.push(spec.file);
-  };
+  for (const lang of LANGS) {
+    const sub = lang === DEFAULT_LANG ? '' : lang;
+    const pagesDir = join(SRC, 'pages', sub);
+    const contentDir = join(SRC, 'content', sub);
+    const outDir = join(OUT, sub);
+    mkdirSync(outDir, { recursive: true });
+    const legalWrap = readFileSync(join(pagesDir, '_legal.html'), 'utf8');
+    const effective = localizedDate(config.effectiveDate, STRINGS[lang].locale);
 
-  const fragment = (name) => readFileSync(join(SRC, 'pages', name), 'utf8');
+    const emit = (spec) => {
+      const html = page(config, draft, layout, lang, spec);
+      const name = PAGE_FILES[spec.key];
+      writeFileSync(join(outDir, name), html);
+      files.push(sub ? `${sub}/${name}` : name);
+    };
+    const fragment = (name) => readFileSync(join(pagesDir, name), 'utf8');
 
-  emit({
-    file: 'index.html',
-    title: 'InvoiceFlow: private invoicing that works offline',
-    description:
-      'Create invoices and estimates, track payments and send them by WhatsApp or PDF. Your data stays on your device. No account needed.',
-    body: fragment('index.html'),
-    nav: 'home',
-  });
-  emit({
-    file: 'support.html',
-    title: 'Support · InvoiceFlow',
-    description: 'Get help with InvoiceFlow: contact us, back up and restore your data, and common questions.',
-    body: fragment('support.html'),
-    nav: 'support',
-  });
-  for (const [file, name, title, description] of [
-    ['privacy.html', 'privacy', 'Privacy Policy · InvoiceFlow', 'How InvoiceFlow handles your information. Your data stays on your device.'],
-    ['terms.html', 'terms', 'Terms and Conditions · InvoiceFlow', 'The terms for using the InvoiceFlow app.'],
-  ]) {
-    const md = render(readFileSync(join(SRC, 'content', `${name}.md`), 'utf8'), { ...config }, `content/${name}.md`);
-    const heading = readFileSync(join(SRC, 'content', `${name}.title`), 'utf8').trim();
-    emit({
-      file,
-      title,
-      description,
-      nav: name,
-      body: render(legalWrap, { heading, effective: config.effectiveDate }, '_legal').replace(
-        '<!--BODY-->',
-        markdownToHtml(md),
-      ),
-    });
+    emit({ key: 'index', body: fragment('index.html'), nav: 'home' });
+    emit({ key: 'support', body: fragment('support.html'), nav: 'support' });
+    for (const name of ['privacy', 'terms']) {
+      const md = render(readFileSync(join(contentDir, `${name}.md`), 'utf8'), { ...config }, `content/${sub}/${name}.md`);
+      const heading = readFileSync(join(contentDir, `${name}.title`), 'utf8').trim();
+      emit({
+        key: name,
+        nav: name,
+        body: render(legalWrap, { heading, effective }, `_legal ${lang}`).replace('<!--BODY-->', markdownToHtml(md)),
+      });
+    }
+    emit({ key: 'notfound', body: fragment('404.html'), nav: '' });
   }
-  emit({
-    file: '404.html',
-    title: 'Page not found · InvoiceFlow',
-    description: 'This page does not exist.',
-    body: fragment('404.html'),
-    nav: '',
-  });
 
   writeFileSync(join(OUT, 'robots.txt'), draft ? 'User-agent: *\nDisallow: /\n' : `User-agent: *\nAllow: /\nSitemap: ${config.siteUrl}/sitemap.xml\n`);
   if (!draft) {
-    const urls = files.filter((f) => f !== '404.html').map((f) => `  <url><loc>${config.siteUrl}/${f === 'index.html' ? '' : f}</loc></url>`);
-    writeFileSync(join(OUT, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join('\n')}\n</urlset>\n`);
+    const indexable = files.filter((f) => !f.endsWith('404.html'));
+    const urlOf = (f) => `${config.siteUrl}/${f === 'index.html' ? '' : f.replace(/(^|\/)index\.html$/, '$1')}`;
+    const entries = indexable.map((f) => {
+      const lang = f.includes('/') ? f.split('/')[0] : DEFAULT_LANG;
+      const base = f.includes('/') ? f.slice(lang.length + 1) : f;
+      const alts = LANGS.map((l) => {
+        const rel = l === DEFAULT_LANG ? base : `${l}/${base}`;
+        return `    <xhtml:link rel="alternate" hreflang="${STRINGS[l].hreflang}" href="${urlOf(rel)}"/>`;
+      });
+      return `  <url>\n    <loc>${urlOf(f)}</loc>\n${alts.join('\n')}\n  </url>`;
+    });
+    writeFileSync(
+      join(OUT, 'sitemap.xml'),
+      `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${entries.join('\n')}\n</urlset>\n`,
+    );
   }
   writeFileSync(join(OUT, '.nojekyll'), '');
+  // Netlify: an unknown address under /es/ or /pt/ shows that language's own "not found" page.
+  writeFileSync(
+    join(OUT, '_redirects'),
+    LANGS.filter((l) => l !== DEFAULT_LANG).map((l) => `/${l}/*  /${l}/404.html  404`).join('\n') + '\n',
+  );
   return { files, draft };
 };
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   try {
     const { files, draft } = build({ draft: process.argv.includes('--draft') });
-    console.log(`${draft ? 'Draft' : 'Production'} build: ${files.length} pages → dist/`);
+    console.log(`${draft ? 'Draft' : 'Production'} build: ${files.length} pages in ${LANGS.length} languages → dist/`);
   } catch (err) {
     console.error(`\nBuild stopped: ${err.message}\n`);
     process.exit(1);
