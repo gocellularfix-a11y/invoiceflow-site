@@ -1,9 +1,14 @@
 {
   "siteName": "InvoiceFlow",
-  "legalName": "",
+  "legalName": "Go Cellular LLC",
+  "brandName": "GO CELLULAR APPS",
   "address": "",
-  "email": "",
-  "siteUrl": "",
+  "email": "gocellularfix@gmail.com",
+  "siteUrl": "https://appinvoiceflow.com",
   "playStoreUrl": "",
-  "effectiveDate": "October 9, 2026"
+  "effectiveDate": "October 12, 2026",
+  "revisions": [
+    { "type": "dateFixed", "date": "October 12, 2026", "previous": "October 9, 2026" },
+    { "type": "published", "date": "October 12, 2026" }
+  ]
 }
