@@ -6,7 +6,8 @@
   <title>{{ title }}</title>
   <meta name="description" content="{{ description }}">
   <meta name="robots" content="{{ robots }}">
-  <meta name="theme-color" content="#4F46E5">
+  <meta name="theme-color" content="#07080d">
+  <script>document.documentElement.classList.add('js')</script>
   <link rel="canonical" href="{{ canonical }}">
   <link rel="icon" href="/assets/favicon.png" sizes="64x64">
   <link rel="icon" href="/assets/icon.svg" type="image/svg+xml">
@@ -23,6 +24,7 @@
 <body>
   <a class="skip" href="#main">Skip to content</a>
   {{{ draftBanner }}}
+  <div class="progress" aria-hidden="true"></div>
   <header class="site-header">
     <div class="wrap site-header__inner">
       <a class="brand" href="/" aria-label="InvoiceFlow home">
@@ -61,5 +63,6 @@
       </ul>
     </div>
   </footer>
+  <script src="/assets/site.js" defer></script>
 </body>
 </html>
