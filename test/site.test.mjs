@@ -331,3 +331,39 @@ test('the Play button and unknown pages are translated too', () => {
   assert.match(readFileSync(join(out, 'pt', 'index.html'), 'utf8'), /Em breve no Google Play/);
   assert.match(readFileSync(join(out, '_redirects'), 'utf8'), /\/es\/\*\s+\/es\/404\.html\s+404/);
 });
+
+// ── Legal publisher and commercial brand ────────────────────────────────────────────────────
+test('the legal publisher is the legal name; the brand only appears as a product line in the footer', () => {
+  const { out, failed } = buildInto({ ...FULL, legalName: 'Acme Repairs LLC', brandName: 'ACME APPS' });
+  assert.equal(failed, false);
+  for (const dir of ['', 'es/', 'pt/']) {
+    for (const page of ['index.html', 'privacy.html', 'terms.html', 'support.html']) {
+      const html = readFileSync(join(out, dir, page), 'utf8');
+      assert.match(html, /&copy; \d{4} Acme Repairs LLC\./, `${dir}${page} copyright is not the legal name`);
+      assert.match(html, /<p class="muted">[^<]*ACME APPS[^<]*<\/p>/, `${dir}${page} has no brand line`);
+      // the brand never stands in for the publisher
+      assert.doesNotMatch(html, /(published by|publicada por|publicado por|©[^<]{0,12})\s*ACME APPS/i);
+    }
+    for (const page of ['privacy.html', 'terms.html']) {
+      const html = readFileSync(join(out, dir, page), 'utf8');
+      assert.match(html, /Acme Repairs LLC,\s*1 Test St/, `${dir}${page} does not name the legal publisher`);
+      // legal pages mention the brand only in the footer line
+      assert.equal((html.match(/ACME APPS/g) ?? []).length, 1, `${dir}${page} uses the brand more than once`);
+    }
+  }
+});
+
+test('without a brand name no brand line is printed', () => {
+  const { out } = buildInto(FULL);
+  for (const dir of ['', 'es/', 'pt/']) {
+    const html = readFileSync(join(out, dir, 'index.html'), 'utf8');
+    assert.doesNotMatch(html, /is a product of|es un producto de|é um produto de/);
+  }
+});
+
+test('the brand line is translated', () => {
+  const { out } = buildInto({ ...FULL, brandName: 'ACME APPS' });
+  assert.match(readFileSync(join(out, 'index.html'), 'utf8'), /InvoiceFlow is a product of ACME APPS\./);
+  assert.match(readFileSync(join(out, 'es', 'index.html'), 'utf8'), /InvoiceFlow es un producto de ACME APPS\./);
+  assert.match(readFileSync(join(out, 'pt', 'index.html'), 'utf8'), /O InvoiceFlow é um produto de ACME APPS\./);
+});

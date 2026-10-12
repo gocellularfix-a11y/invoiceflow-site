@@ -25,6 +25,7 @@ export const STRINGS = {
     footTerms: 'Terms and Conditions',
     footSupport: 'Support',
     rights: 'All rights reserved.',
+    brandBy: 'InvoiceFlow is a product of {brand}.',
     playLink: 'Get it on Google Play',
     playSoon: 'Coming soon to Google Play',
     titles: {
@@ -62,6 +63,7 @@ export const STRINGS = {
     footTerms: 'Términos y condiciones',
     footSupport: 'Soporte',
     rights: 'Todos los derechos reservados.',
+    brandBy: 'InvoiceFlow es un producto de {brand}.',
     playLink: 'Consíguela en Google Play',
     playSoon: 'Próximamente en Google Play',
     titles: {
@@ -100,6 +102,7 @@ export const STRINGS = {
     footTerms: 'Termos e Condições',
     footSupport: 'Suporte',
     rights: 'Todos os direitos reservados.',
+    brandBy: 'O InvoiceFlow é um produto de {brand}.',
     playLink: 'Baixe no Google Play',
     playSoon: 'Em breve no Google Play',
     titles: {

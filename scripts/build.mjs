@@ -128,6 +128,10 @@ const page = (config, draft, layout, lang, { key, body, nav }) => {
     footTerms: s.footTerms,
     footSupport: s.footSupport,
     rights: s.rights,
+    // Commercial brand, shown as a plain product line. The legal publisher is legalName; a brand is not a legal entity.
+    brandLine: String(config.brandName ?? '').trim()
+      ? `<p class="muted">${escapeHtml(s.brandBy.replace('{brand}', String(config.brandName).trim()))}</p>`
+      : '',
     canonical: `${config.siteUrl}${prefix}/${path}`,
     alternates: alternates.join('\n  '),
     langSwitcher: switcher.join(''),
