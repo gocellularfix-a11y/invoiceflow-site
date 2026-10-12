@@ -14,9 +14,9 @@ const SRC = join(ROOT, 'src');
 const OUT = process.env.SITE_OUT ? process.env.SITE_OUT : join(ROOT, 'dist');
 const CONFIG_PATH = process.env.SITE_CONFIG ? process.env.SITE_CONFIG : join(ROOT, 'site.config.json');
 
+// The street address is optional: it is shown only if the publisher chooses to give one.
 const REQUIRED = {
   legalName: '[LEGAL NAME OF YOUR BUSINESS]',
-  address: '[BUSINESS ADDRESS]',
   email: '[SUPPORT EMAIL]',
   siteUrl: 'http://localhost:8080',
 };
@@ -42,7 +42,9 @@ export const markdownToHtml = (md) => {
       .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
       .replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+|\/[^)\s]*|[\w./-]+\.html)\)/g, '<a href="$2">$1</a>');
 
-  const blocks = md.trim().split(/\n{2,}/);
+  // Windows editors and git checkouts write \r\n. Without this, a file saved that way has no blank
+  // lines to split on and the whole page collapses into a single heading.
+  const blocks = md.replace(/\r\n?/g, '\n').trim().split(/\n{2,}/);
   return blocks
     .map((block) => {
       const lines = block.split('\n');
@@ -73,6 +75,9 @@ export const loadConfig = (draft) => {
     if (!String(filled[key] ?? '').trim()) filled[key] = placeholder;
   }
   filled.siteUrl = filled.siteUrl.replace(/\/+$/, '');
+  const address = String(config.address ?? '').trim();
+  filled.address = address;
+  filled.addressSuffix = address ? `, ${address}` : draft ? ', [BUSINESS ADDRESS, optional]' : '';
   return filled;
 };
 
