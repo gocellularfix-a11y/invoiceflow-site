@@ -34,6 +34,8 @@ Only a few things leave your device, and each one is described here.
 
 **Things you choose to share.** When you share an invoice, receipt, reminder, PDF, CSV export or backup, it goes where you send it, for example WhatsApp or email, through your device's share menu or a link. For WhatsApp the app opens a wa.me link with a prepared message, and you decide whether to press send there. The app cannot tell whether you did, so its activity log says a message was "shared", "opened in WhatsApp" or "logged", never that it was delivered. The message and the phone number are handled by WhatsApp under its own terms, and only if you send it. We do not see or store them. The app never sends messages by itself.
 
+**Temporary copies made for sharing (Android).** To hand a PDF, CSV or backup to your phone's share menu, the app first saves one copy in its own private temporary storage, which other apps cannot read. The app removes a copy that is more than an hour old when it next starts and before your next export, and removes all of them at once when you choose Clear all data. There is no timer, so a copy can remain until one of those happens, or until Android clears the app's cache. The app itself uploads nothing.
+
 **Payment links.** If you add a Stripe Payment Link in Settings, the app accepts only links on Stripe's payment-link address (buy.stripe.com). It attaches your invoice number to that link as a reference, so you can match a payment in your Stripe Dashboard. Customer names and other personal details are not added to the link. InvoiceFlow does not process payments, never handles card details, and cannot see whether a customer paid: you record payments yourself.
 
 **Device backups and moving to a new phone.** InvoiceFlow turns off Android's automatic cloud backup for the app, so Android does not copy the app's data to your Google account. When you set up a new phone by copying directly from your old one, some Android phones may still carry the app's data across, including customer details and photos. That copy goes from one of your devices to the other, and we never receive it. To keep a copy of your own, use Export backup in Settings.
@@ -65,7 +67,7 @@ You control your data directly in the app.
 Because the data lives only on your device, you delete it there. We hold no copy to delete.
 
 1. **One record:** open an invoice, customer or attachment and delete it.
-2. **Everything in the app:** in Settings, choose Clear all data and confirm. This removes all invoices, customers, payments, reminders, photos, settings and your language choice from the app.
+2. **Everything in the app:** in Settings, choose Clear all data and confirm. This removes all invoices, customers, payments, reminders, photos, settings and your language choice from the app, and also removes the app's temporary sharing copies described above.
 3. **Remove the app:** uninstalling InvoiceFlow removes its data from your device.
 
 Deleting data, clearing it or uninstalling does **not** delete:
